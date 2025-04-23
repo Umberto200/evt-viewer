@@ -110,6 +110,53 @@ angular.module('evtviewer.dataHandler')
 			return elem;
 		}
 
+      /**
+ * @ngdoc method
+ * @name evtviewer.dataHandler.evtCriticalElementsParser#getEntryReadingText
+ * @methodOf evtviewer.dataHandler.evtCriticalElementsParser
+ *
+ * @description
+ * This method retrieves the text content of the <rdg> element for a given critical apparatus entry.
+ *
+ * @param {Object} entry JSON object representing the critical apparatus entry to handle
+ * @returns {element} <code>evt-reading</code> element representing the <rdg> content
+ * @author CM
+ */
+parser.getEntryReadingText = function(entry) {
+    var spanElement = document.createElement('evt-reading');
+    spanElement.setAttribute('data-app-id', entry.id);
+    spanElement.setAttribute('data-type', 'reading');
+
+    if (entry !== null) {
+        // Check for the first available <rdg> in the entry
+        var rdgId = entry._indexes.readings._indexes.find(function(readingId) {
+            return entry.content[readingId]._xmlTagName === 'rdg';
+        });
+
+        if (rdgId) {
+            var rdgContent = entry.content[rdgId].content;
+            spanElement.setAttribute('data-reading-id', rdgId);
+
+            // Add the content of the <rdg> to the span element
+            for (var i in rdgContent) {
+                if (typeof rdgContent[i] === 'string') {
+                    spanElement.appendChild(document.createTextNode(rdgContent[i]));
+                } else {
+                    spanElement.appendChild(rdgContent[i]);
+                }
+            }
+        } else {
+            // Add a placeholder if no <rdg> is found
+            spanElement.className = 'empty';
+            spanElement.setAttribute('title', 'No <rdg> found for this entry');
+        }
+    } else {
+        spanElement.className = 'encodingError';
+        spanElement.setAttribute('title', 'Entry is null or invalid');
+    }
+
+    return spanElement;
+};
 	};
 	/**
      * @ngdoc function
