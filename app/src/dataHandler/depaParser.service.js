@@ -24,8 +24,18 @@ angular.module('evtviewer.dataHandler')
       var endId = parsedData.getCriticalEntries()._indexes.depa.end[entryId],
           toAnchor = dom.querySelector('[*|id="' + endId + '"]');
       if (!toAnchor) { return; }
-      var rdgElement = wit ? evtCriticalElementsParser.getEntryWitnessReadingText(entry, wit)
-        : evtCriticalElementsParser.getEntryLemmaText(entry, wit);
+var rdgElement = wit ? evtCriticalElementsParser.getEntryWitnessReadingText(entry, wit)
+  : evtCriticalElementsParser.getEntryLemmaText(entry, wit);
+
+// Aggiungi il controllo per <rdg> come alternativa
+if (!rdgElement) {
+    rdgElement = evtCriticalElementsParser.getEntryReadingText(entry); // Recupera <rdg>
+}
+
+if (!rdgElement) {
+    console.warn('Né <lem> né <rdg> trovati per l\'entry:', entry);
+    return; // Se non ci sono né <lem> né <rdg>, esci
+}
       var method = parsedData.getEncodingDetail('variantEncodingMethod');
       rdgElement.setAttribute('data-method', method || 'double-end-point');
 
@@ -46,8 +56,18 @@ angular.module('evtviewer.dataHandler')
         }
         fromAnchor.parentNode.insertBefore(rdgElement, fromAnchor);
       } else {
-        // The text doesn't have to be substituted, but an anchor must be inserted
-        var anchor = parser.createAnchorElement(entry, wit);
+        var rdgElement = wit ? evtCriticalElementsParser.getEntryWitnessReadingText(entry, wit)
+  : evtCriticalElementsParser.getEntryLemmaText(entry, wit);
+
+// Aggiungi il controllo per <rdg> come alternativa
+if (!rdgElement) {
+    rdgElement = evtCriticalElementsParser.getEntryReadingText(entry); // Recupera <rdg>
+}
+
+if (!rdgElement) {
+    console.warn('Né <lem> né <rdg> trovati per l\'entry:', entry);
+    return; // Se non ci sono né <lem> né <rdg>, esci
+}
         fromAnchor.parentNode.insertBefore(anchor, fromAnchor);
         rdgElement.setAttribute('data-no-text', true);
         toAnchor.parentNode.insertBefore(rdgElement, toAnchor.nextSibling);
